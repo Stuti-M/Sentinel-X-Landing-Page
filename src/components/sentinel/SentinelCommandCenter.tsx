@@ -304,7 +304,21 @@ export function SentinelCommandCenter() {
             <div className="space-y-4">
               <Panel>
                 <PanelHeader icon={Waypoints} title="Agent Orchestration" meta="n8n WORKFLOW" />
-                <div className="mt-5 border-t border-border pt-4"><div className="flex items-center gap-3"><span className={cn("grid size-7 shrink-0 place-items-center rounded-full border", runState === "running" ? "border-primary text-primary" : runState === "complete" ? "border-eco text-eco" : "border-border text-muted-foreground")} >{runState === "complete" ? <Check className="size-3.5" /> : <Activity className={cn("size-3.5", runState === "running" && "animate-pulse")} />}</span><div className="min-w-0"><p className="truncate font-mono text-[10px] text-foreground">{stage >= 0 ? STAGES[stage].label : "AWAITING MISSION"}</p><p className="mt-1 font-mono text-[8px] text-muted-foreground">{runState === "running" ? `STEP ${stage + 1} / ${STAGES.length}` : runState === "complete" ? "MISSION COMPLETE" : "SYSTEM READY"}</p></div></div><progress className="mt-3 h-0.5 w-full accent-primary" value={stage < 0 ? 0 : stage + 1} max={STAGES.length} /></div></div>
+                <div className="p-4">
+                  <Workflow activeNode={activeNode} running={runState === "running"} />
+                  <div className="mt-5 border-t border-border pt-4">
+                    <div className="flex items-center gap-3">
+                      <span className={cn("grid size-7 shrink-0 place-items-center rounded-full border", runState === "running" ? "border-primary text-primary" : runState === "complete" ? "border-eco text-eco" : "border-border text-muted-foreground")}>
+                        {runState === "complete" ? <Check className="size-3.5" /> : <Activity className={cn("size-3.5", runState === "running" && "animate-pulse")} />}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate font-mono text-[10px] text-foreground">{stage >= 0 ? STAGES[stage].label : "AWAITING MISSION"}</p>
+                        <p className="mt-1 font-mono text-[8px] text-muted-foreground">{runState === "running" ? `STEP ${stage + 1} / ${STAGES.length}` : runState === "complete" ? "MISSION COMPLETE" : "SYSTEM READY"}</p>
+                      </div>
+                    </div>
+                    <progress className="mt-3 h-0.5 w-full accent-primary" value={stage < 0 ? 0 : stage + 1} max={STAGES.length} />
+                  </div>
+                </div>
               </Panel>
               <TerminalPanel logs={visibleLogs} running={runState === "running"} />
             </div>
