@@ -1,0 +1,75 @@
+body { 
+    background-color: #090B10; 
+    color: #E2E8F0; 
+}
+
+/* Background Patterns */
+.bg-grid-pattern {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CgkJPGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz4KPC9zdmc+');
+}
+
+.bg-grid-large {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAwaDIwdjIwSDIwek0wIDIwaDIwdjIwSDB6IiBmaWxsPSJyZ2JhKDU3LCAyNTUsIDIwLCAwLjAzKSIvPgo8L3N2Zz4=');
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* UI Animations */
+.pulse-dot {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+}
+
+.btn-glow {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.btn-glow:hover {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+    background-color: rgba(0, 240, 255, 0.1);
+}
+
+/* Radar Sweep Effect */
+.radar-sweep {
+    position: relative;
+    overflow: hidden;
+}
+
+.radar-sweep::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 70%, rgba(57, 255, 20, 0.4) 100%);
+    transform-origin: 0 0;
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Terminal Typewriter Cursor */
+.cursor::after {
+    content: '█';
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: #00F0FF; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #39FF14; }

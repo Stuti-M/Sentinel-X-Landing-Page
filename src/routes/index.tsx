@@ -31,7 +31,7 @@ export const Route = createFileRoute("/")({
 
 function ShowcaseLanding() {
   return (
-    <div className="bg-background min-h-screen text-foreground selection:bg-signal selection:text-background font-sans overflow-x-hidden">
+    <div className="bg-background min-h-screen text-foreground selection:bg-signal selection:text-background font-sans overflow-x-clip">
       <CustomCursor />
       <ScrollProgress />
       <ShowcaseNav />

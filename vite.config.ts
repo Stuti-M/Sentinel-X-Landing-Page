@@ -7,6 +7,17 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    server: {
+      proxy: {
+        '/api/chat': {
+          target: 'http://localhost:5678',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/chat/, '/webhook-test/5d5496f6-d7b7-4ad4-84b4-ecbcb4c91713')
+        }
+      }
+    }
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

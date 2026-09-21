@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-X | Agentic Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#050505',
+                        panel: '#0a0a0a',
+                        borderline: '#1f1f1f',
+                        accent: { green: '#00ff41', cyan: '#00f0ff', red: '#ff2a2a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e5e5e5; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #1f1f1f; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff41; }
+        
+        /* Blinking Terminal Cursor */
+        .cursor::after {
+            content: '█';
+            color: #00ff41;
+            animation: blink 1s step-end infinite;
+            margin-left: 4px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Crisp glowing effect for primary button */
+        .btn-primary {
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 0 1px #00ff41;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: inset 0 0 0 1px #333;
+            color: #666;
+        }
+
+        /* Tech Pattern Background for Map Placeholder */
+        .tech-grid {
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col font-sans overflow-hidden">
+
+    <header class="h-16 border-b border-borderline bg-background flex justify-between items-center px-8 shrink-0">
+        <div class="flex items-center gap-6">
+            <h1 class="text-2xl font-black tracking-tighter text-white uppercase">
+                Sentinel<span class="text-accent-green">_X</span>
+            </h1>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
+                <span class="font-mono text-xs text-gray-400">SYS.ONLINE</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 font-mono text-xs">
+            <div class="px-3 py-1 border border-borderline text-gray-400">
+                PORTFOLIO <span class="text-white ml-2">DEEPMIND</span>
+            </div>
+            <div class="px-3 py-1 border border-accent-green/30 text-accent-green bg-accent-green/5">
+                SDG:13
+            </div>
+            <div class="px-3 py-1 border border-accent-green/30 text-accent-green bg-accent-green/5">
+                SDG:15
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 grid grid-cols-12 gap-4 p-4 h-full overflow-hidden">
+        
+        <aside class="col-span-3 flex flex-col gap-4 h-full">
+            <div class="bg-panel border border-borderline p-5 flex-1 flex flex-col">
+                <h2 class="font-mono text-sm text-gray-500 mb-4 border-b border-borderline pb-2">[ INPUT.PARAMETERS ]</h2>
+                
+                <p class="text-xs font-mono text-gray-400 mb-2">CRISIS SCENARIO / CONTEXT INJECTION</p>
+                <textarea id="scenarioInput" class="w-full flex-1 bg-background border border-borderline p-4 text-sm font-mono text-gray-300 focus:outline-none focus:border-accent-green transition-colors resize-none mb-4" placeholder="Enter coordinates, API endpoints, or crisis description here..."></textarea>
+                
+                <button id="scanBtn" class="w-full py-4 font-mono font-bold text-accent-green uppercase tracking-widest btn-primary">
+                    > Execute Agents
+                </button>
+            </div>
+
+            <div class="bg-background border border-accent-red/30 p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-mono text-xs text-accent-red">CRISIS.TWIST.OVERRIDE</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="crisisToggle" class="sr-only peer">
+                        <div class="w-9 h-5 bg-borderline peer-focus:outline-none peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-accent-red"></div>
+                    </label>
+                </div>
+                <p class="text-[10px] font-mono text-gray-500">Inject dynamic constraints into agent pipeline mid-execution.</p>
+            </div>
+        </aside>
+
+        <section class="col-span-6 bg-panel border border-borderline flex flex-col h-full overflow-hidden">
+            <div class="bg-background border-b border-borderline px-4 py-2 flex justify-between items-center">
+                <span class="font-mono text-xs text-gray-500">[ AGENT_ORCHESTRATION_LOG ]</span>
+                <span class="font-mono text-xs text-accent-cyan" id="agentStatus">IDLE</span>
+            </div>
+            
+            <div id="terminal" class="flex-1 p-5 font-mono text-sm overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                <span class="text-gray-600">> Awaiting execution command...</span>
+            </div>
+        </section>
+
+        <aside class="col-span-3 flex flex-col gap-4 h-full">
+            
+            <div class="bg-panel border border-borderline h-48 relative overflow-hidden flex items-center justify-center tech-grid">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-background/90"></div>
+                <div class="z-10 text-center" id="mapStatus">
+                    <span class="font-mono text-xs text-gray-600 border border-gray-800 px-3 py-1 bg-background">NO TARGET ACQUIRED</span>
+                </div>
+            </div>
+
+            <div class="bg-panel border border-borderline flex-1 flex flex-col overflow-hidden">
+                <div class="bg-background border-b border-borderline px-4 py-2 flex justify-between items-center">
+                    <span class="font-mono text-xs text-gray-500">[ POLICY_OUTPUT.JSON ]</span>
+                </div>
+                <div id="policyOutput" class="flex-1 p-4 font-mono text-xs text-gray-400 overflow-y-auto opacity-0 transition-opacity duration-500">
+                    </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scanBtn = document.getElementById('scanBtn');
+            const terminal = document.getElementById('terminal');
+            const mapStatus = document.getElementById('mapStatus');
+            const policyOutput = document.getElementById('policyOutput');
+            const agentStatus = document.getElementById('agentStatus');
+            const crisisToggle = document.getElementById('crisisToggle');
+
+            // The exact step-by-step thinking of your AI agents
+            const mockLogs = [
+                { text: "> INIT OrchestratorAgent...", color: "text-gray-400", delay: 400 },
+                { text: "> Connecting to DeepMind Global Policy Framework...", color: "text-gray-400", delay: 600 },
+                { text: "\n[DATA_AGENT] Executing search query on environmental API endpoints.", color: "text-accent-cyan", delay: 1000 },
+                { text: "  ↳ Scanning Region: Amazon Basin Coordinates [-3.4653, -62.2159]", color: "text-gray-500", delay: 800 },
+                { text: "  ↳ WARN: Anomaly detected. Rapid biomass reduction identified.", color: "text-yellow-500", delay: 1200 },
+                { text: "\n[ANALYSIS_AGENT] Ingesting anomaly data. Cross-referencing local databases.", color: "text-accent-cyan", delay: 1200 },
+                { text: "  ↳ Checking SDG 15 compliance metrics...", color: "text-gray-500", delay: 800 },
+                { text: "  ↳ CRITICAL: Unauthorized mining operation confirmed in Sector 4 (Protected Zone).", color: "text-accent-red font-bold", delay: 1000 },
+                { text: "\n[POLICY_AGENT] Drafting responsive governance protocol...", color: "text-accent-green", delay: 1500 },
+                { text: "  ↳ Applying ethical constraints and risk analysis...", color: "text-gray-500", delay: 1200 },
+                { text: "  ↳ Generating JSON output for immediate stakeholder deployment.", color: "text-accent-green", delay: 1000 },
+                { text: "\n> TASK COMPLETE. Terminating active agents.", color: "text-gray-400", delay: 500 }
+            ];
+
+            const mockJsonOutput = `{
+  "alert_level": "CRITICAL",
+  "incident_id": "AMZ-8842",
+  "sdg_affected": ["Goal 13", "Goal 15"],
+  "geospatial_data": {
+    "region": "Amazon Basin",
+    "zone": "Sector 4 (Protected)",
+    "coordinates": "3.4653° S, 62.2159° W"
+  },
+  "agent_analysis": "Illegal deforestation linked to unauthorized thermal mining signatures.",
+  "policy_action_plan": [
+    "1. Deploy regional law enforcement immediately.",
+    "2. Freeze local logistics networks suspected of transporting extracted materials.",
+    "3. Issue automated injunction via National Environmental Tribunal."
+  ],
+  "governance_confidence": 0.96
+}`;
+
+            // Function to simulate typing text
+            function typeWriter(element, text, speed = 10) {
+                return new Promise(resolve => {
+                    let i = 0;
+                    element.innerHTML = '<span class="cursor"></span>';
+                    const cursor = element.querySelector('.cursor');
+                    
+                    function type() {
+                        if (i < text.length) {
+                            const char = document.createTextNode(text.charAt(i));
+                            element.insertBefore(char, cursor);
+                            i++;
+                            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll down
+                            setTimeout(type, speed);
+                        } else {
+                            cursor.remove();
+                            resolve();
+                        }
+                    }
+                    type();
+                });
+            }
+
+            // JSON Integration: Load mock data into the UI
+            window.loadJsonData = async function(filename) {
+                try {
+                    const response = await fetch(filename);
+                    if (!response.ok) throw new Error('File not found');
+                    const jsonData = await response.json();
+                    
+                    policyOutput.innerHTML = `<pre class="text-accent-cyan">${JSON.stringify(jsonData, null, 2)}</pre>`;
+                    policyOutput.style.opacity = '1';
+                    
+                    const systemLine = document.createElement('div');
+                    systemLine.className = "text-yellow-500 mt-2 font-mono";
+                    terminal.appendChild(systemLine);
+                    await typeWriter(systemLine, `> SYSTEM: Local data [${filename}] embedded successfully.`, 10);
+                } catch(error) {
+                    console.error("Failed to load JSON:", error);
+                    const errorLine = document.createElement('div');
+                    errorLine.className = "text-accent-red font-bold mt-2 font-mono";
+                    terminal.appendChild(errorLine);
+                    await typeWriter(errorLine, `> ERR: Could not load [${filename}].`, 10);
+                }
+            };
+
+            // Click Event for Execution - Integrated with n8n via Proxy
+            scanBtn.addEventListener('click', async () => {
+                const userInput = document.getElementById('scenarioInput').value;
+                if (!userInput.trim()) {
+                    const promptLine = document.createElement('div');
+                    promptLine.className = "text-yellow-500 mt-2 font-mono";
+                    terminal.appendChild(promptLine);
+                    await typeWriter(promptLine, "> WARNING: Execution requires crisis scenario input.", 10);
+                    return;
+                }
+
+                // 1. Lock UI Elements
+                scanBtn.disabled = true;
+                scanBtn.textContent = '> EXECUTING...';
+                scanBtn.classList.add('btn-disabled');
+                scanBtn.classList.remove('btn-primary');
+                
+                terminal.innerHTML = '';
+                policyOutput.style.opacity = '0';
+                policyOutput.innerHTML = '';
+                agentStatus.textContent = 'TRANSMITTING';
+                agentStatus.className = 'font-mono text-xs text-accent-cyan animate-pulse';
+                
+                mapStatus.innerHTML = '<span class="font-mono text-xs text-accent-cyan border border-accent-cyan px-3 py-1 bg-background animate-pulse">TRANSMITTING TO MULTI-AGENT INTRANET...</span>';
+
+                // Check for Crisis Twist (formatting override feedback)
+                if (crisisToggle.checked) {
+                    const twistLine = document.createElement('div');
+                    twistLine.className = "text-accent-red font-bold mb-4";
+                    terminal.appendChild(twistLine);
+                    await typeWriter(twistLine, "[!] URGENT OVERRIDE APPLIED TO PAYLOAD PARAMETERS", 5);
+                }
+                
+                // Show user input
+                const headerLine = document.createElement('div');
+                headerLine.className = "text-gray-400 mb-4";
+                terminal.appendChild(headerLine);
+                await typeWriter(headerLine, `> Initiating execution with payload:\n  "${userInput}"`, 5);
+                
+                // Display loading indicator
+                const loadingLine = document.createElement('div');
+                loadingLine.className = "text-accent-cyan font-bold animate-pulse mt-2";
+                loadingLine.textContent = "> WAITING FOR SENTINEL-X AGENTS...";
+                terminal.appendChild(loadingLine);
+
+                // 2. Fetch from proxy which talks to n8n
+                try {
+                    const response = await fetch('http://localhost:3000/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: userInput })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    loadingLine.remove();
+                    
+                    // Display response payload in policy output panel
+                    policyOutput.innerHTML = `<pre class="text-accent-cyan overflow-auto h-full p-2">${JSON.stringify(data, null, 2)}</pre>`;
+                    policyOutput.style.opacity = '1';
+                    
+                    mapStatus.innerHTML = '<span class="font-mono text-xs text-background bg-accent-green border border-accent-green px-3 py-1 font-bold">RESPONSE RECEIVED</span>';
+
+                    // Assuming n8n returns the data inside the 'reply' object
+                    const policy = typeof data.reply === 'string' ? JSON.parse(data.reply) : (data.reply || data);
+                    
+                    const structuredHTML = `
+<div class="agent-msg" style="border-left: 3px solid #ff7b72; color: #ff7b72; padding-left: 10px; margin-bottom: 12px; margin-top: 16px;">
+    <strong>[ THREAT LEVEL ]:</strong> ${policy.threat_level || 'UNKNOWN'}
+</div>
+<div class="agent-msg" style="border-left: 3px solid #79c0ff; color: #79c0ff; padding-left: 10px; margin-bottom: 12px;">
+    <strong>[ SDG ALIGNMENT ]:</strong> ${policy.sdg_alignment || 'UNKNOWN'}
+</div>
+<div class="agent-msg" style="border-left: 3px solid #d2a8ff; color: #d2a8ff; padding-left: 10px; margin-bottom: 12px;">
+    <strong>[ PRIMARY RISK ]:</strong> ${policy.primary_risk || 'UNKNOWN'}
+</div>
+<div class="agent-msg" style="border-left: 3px solid #ffa657; color: #ffa657; padding-left: 10px; margin-bottom: 12px;">
+    <strong>[ IMMEDIATE ACTION ]:</strong> ${policy.immediate_action || 'UNKNOWN'}
+</div>
+<div class="agent-msg" style="border-left: 3px solid #3fb950; color: #3fb950; padding-left: 10px; margin-bottom: 12px;">
+    <strong>[ FULL POLICY BRIEF ]:</strong><br><br>${(policy.policy_brief ? String(policy.policy_brief).replace(/\n/g, '<br>') : 'N/A')}
+</div>`;
+
+                    const replyWrapper = document.createElement('div');
+                    replyWrapper.innerHTML = structuredHTML;
+                    terminal.appendChild(replyWrapper);
+                    
+                    // Add a small system completion message via typewriter just for the hacker aesthetic
+                    const systemLine = document.createElement('div');
+                    systemLine.className = "text-gray-500 mt-4";
+                    terminal.appendChild(systemLine);
+                    await typeWriter(systemLine, "> SYSTEM: Agent execution and policy drafting completed successfully.", 5);
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                } catch (error) {
+                    loadingLine.remove();
+                    
+                    const errorLine = document.createElement('div');
+                    errorLine.className = "text-accent-red font-bold mt-2";
+                    terminal.appendChild(errorLine);
+                    await typeWriter(errorLine, `> FATAL COLLISION: Pipeline broken.\n> ${error.message}\n> TIP: Ensure 'node server.js' and 'n8n' are running.`, 10);
+                    
+                    mapStatus.innerHTML = '<span class="font-mono text-xs text-background bg-accent-red border border-accent-red px-3 py-1 font-bold">COMMUNICATION FAILED</span>';
+                }
+
+                // 3. Reset UI state
+                agentStatus.textContent = 'IDLE';
+                agentStatus.className = 'font-mono text-xs text-gray-500';
+
+                // Reset Button
+                scanBtn.disabled = false;
+                scanBtn.textContent = '> Execute Agents';
+                scanBtn.classList.remove('btn-disabled');
+                scanBtn.classList.add('btn-primary');
+            });
+        });
+    </script>
+</body>
+</html>

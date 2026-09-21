@@ -1,0 +1,306 @@
+{
+  "name": "n8n safe",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5d5496f6-d7b7-4ad4-84b4-ecbcb4c91713",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "53938e17-a153-4607-9da1-fe6cef2c9782",
+      "name": "Webhook",
+      "webhookId": "5d5496f6-d7b7-4ad4-84b4-ecbcb4c91713"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ \n{\n  reply: $json.output\n} \n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        0
+      ],
+      "id": "206ee75b-4688-4f77-908f-c70fcfdc8e34",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "d3ffa69c-9d3a-4c2d-a58d-1270d4d83a9d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "ym4cd3bXJxWlfBTx",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        256,
+        432
+      ],
+      "id": "5afe2c1b-418d-4851-8ccf-9f825c5a5e4a",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "You are the Sentinel-X Field Researcher. You are the primary intelligence-gathering agent for an autonomous crisis response network.\n\nYour sole objective is to aggregate real-time, verified facts, news, and logistical data regarding the user's crisis query. \n\nTOOL USAGE RULES:\n1. SEARCH (SerpAPI & Wikipedia): You MUST use your search tools to pull real-world context, breaking news, definitions, and geographical data. Do not guess facts.\n2. CALCULATOR: If the crisis requires resource allocation, supply division, or logistical math, you MUST use the calculator tool to find the exact numbers. Do not hallucinate math.\n\nSTRICT CONSTRAINTS:\n- DO NOT write policy, governance recommendations, or ethical frameworks. Your job is strictly data aggregation; the Policy Director will handle the rest.\n- DO NOT invent information. If a search fails or data is unavailable, explicitly state that it is unverified.\n\nOUTPUT:\nProvide a highly structured, objective, and detailed summary of the raw facts, verified statistics, and calculated resource data. Format your findings clearly so the Policy Director can easily read them."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0137d1e3-b191-4747-88e8-25d6f497f3b2",
+      "name": "Agent: Field Researcher"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Crisis: {{ $('Webhook').item.json.body.message }}\n\nField Research Data: {{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Sentinel-X Policy Director representing Google DeepMind. Based on the Verified Field Data provided, write a formal, highly analytical policy brief. \n\nYou MUST align your response and recommendations with UN SDGs 13 (Climate Action) and 15 (Life on Land). \n\nYou MUST output your response in strict JSON format."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        0
+      ],
+      "id": "e55ab705-f791-4c39-ae89-b8463212716b",
+      "name": "Agent: Policy Director"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        592,
+        224
+      ],
+      "id": "351eb5db-5d9d-46f3-aff9-cc738ea66478",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "ym4cd3bXJxWlfBTx",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"threat_level\": {\n      \"type\": \"string\",\n      \"description\": \"The assessed threat level of the crisis (e.g., Critical, High, Medium, Low).\"\n    },\n    \"sdg_alignment\": {\n      \"type\": \"string\",\n      \"description\": \"The specific UN SDGs this crisis aligns with (e.g., SDG 13: Climate Action, SDG 15: Life on Land).\"\n    },\n    \"primary_risk\": {\n      \"type\": \"string\",\n      \"description\": \"A short, 1-2 sentence summary of the immediate danger or risk.\"\n    },\n    \"immediate_action\": {\n      \"type\": \"string\",\n      \"description\": \"The primary operational recommendation for deployment.\"\n    },\n    \"policy_brief\": {\n      \"type\": \"string\",\n      \"description\": \"The detailed, formal policy response and situational analysis.\"\n    }\n  },\n  \"required\": [\n    \"threat_level\",\n    \"sdg_alignment\",\n    \"primary_risk\",\n    \"immediate_action\",\n    \"policy_brief\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        224
+      ],
+      "id": "7537d084-d7e6-4c32-bb6f-a684cc5183c2",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        480,
+        432
+      ],
+      "id": "0eea7ffe-a075-4a52-b74a-81c81b03f6c6",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "puZhweAN8eAZrNFB",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        368,
+        320
+      ],
+      "id": "a000d4ac-05e0-49c1-bd00-c50ed309f1d6",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        368,
+        496
+      ],
+      "id": "6280605f-a461-4243-b138-c7ed5f6a845a",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent: Field Researcher": {
+      "main": [
+        [
+          {
+            "node": "Agent: Policy Director",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent: Policy Director": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent: Policy Director",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agent: Policy Director",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent: Field Researcher",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d54a9ae1-385e-4b7d-a34a-f733ddf2fc46",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b2d2dec741cadbaff6345aa962e08815b746a5bc00cd86c461d4492c0119288"
+  },
+  "id": "o3PZUyiZTq8AvZzt",
+  "tags": []
+}
